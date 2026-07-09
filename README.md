@@ -1,5 +1,8 @@
 # Shell Alias Miner
 
+[![CI](https://github.com/ctkrug/shell-alias-miner/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/shell-alias-miner/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Point it at your own shell history and it mines your most-repeated multi-word
 commands, proposes ready-to-paste aliases and shell functions for them, and
 tells you exactly how many keystrokes each one will save you.
