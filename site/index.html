@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shell Alias Miner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>Shell Alias Miner</h1>
+    <p class="tagline">
+      Drop in your shell history. Get back the aliases you should have
+      written months ago.
+    </p>
+
+    <section id="drop-zone">
+      <label for="history-file">
+        Choose your <code>.zsh_history</code> or <code>.bash_history</code> file
+      </label>
+      <input type="file" id="history-file" />
+    </section>
+
+    <p id="status" role="status"></p>
+
+    <table id="results" hidden>
+      <thead>
+        <tr>
+          <th>Alias</th>
+          <th>Definition</th>
+          <th>Seen</th>
+          <th>Keystrokes saved</th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+  </main>
+
+  <script src="wasm_exec.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
