@@ -1,7 +1,8 @@
 # Architecture
 
 A concise map of the codebase for anyone (human or model) picking this up
-fresh. See `VISION.md` for *why*, `BACKLOG.md` for *what's left*.
+fresh. See `VISION.md` for *why*, `BACKLOG.md` for *what's left*, and
+`DESIGN.md` for the site's visual direction and tokens.
 
 ## Data flow
 
@@ -46,6 +47,9 @@ unit-tested under `GOOS=js`.
 - **`internal/history`** — `Parse(io.Reader) []string`. Handles plain
   `bash_history`, zsh `EXTENDED_HISTORY` (`: <ts>:<dur>;cmd`), and trailing
   `\` line continuations. Never errors; best-effort on malformed input.
+  Reads with `bufio.Reader.ReadString` rather than `bufio.Scanner` — the
+  latter has a fixed max token size and, once one line exceeds it, silently
+  stops scanning the rest of the file; `ReadString` has no such ceiling.
 - **`internal/miner`** — `Candidate{Command, Prefix, Count, Kind}`.
   - `tokenize(string) []string`: quote-aware word splitter (a fast path via
     `strings.Fields` when there are no quotes, a rune-by-rune quote tracker
@@ -61,7 +65,10 @@ unit-tested under `GOOS=js`.
   - `containsSecret` (`secrets.go`): regex match on common long-form
     credential flags (`--password`, `--token`, `--api-key`, `--secret`) plus
     an allowlist-gated check for `mysql`/`mongo`'s inline `-p<password>`
-    convention. Candidates matching it are dropped before proposing.
+    convention. Candidates matching it are dropped before proposing. The
+    allowlist check matches on `filepath.Base` of the first token, lowered,
+    so a path-qualified or differently-cased invocation (`/usr/bin/mysql`,
+    `MYSQL`) is still caught.
   - `proposeAlias` / `proposeFunction`: build the `alias name="..."` or
     `function name() { prefix "$1"; }` snippet and the keystrokes-saved
     number. `uniqueName` resolves name collisions in O(1) amortized via a
@@ -74,15 +81,26 @@ unit-tested under `GOOS=js`.
   (`select{}`) so the wasm runtime doesn't exit and unregister the function.
 - **`site/`** — static HTML/CSS/JS, no build step beyond `make site`
   (compiles the wasm binary and copies in `wasm_exec.js`). All paths are
-  relative so it can be hosted at any subpath.
-  - `main.js`: loads the wasm module, wires the file picker, and holds two
+  relative so it can be hosted at any subpath. Visual direction, tokens,
+  and layout intent are documented in `docs/DESIGN.md` (a dark
+  "terminal-mono" aesthetic — a faux terminal window houses the whole
+  workspace).
+  - `main.js`: loads the wasm module, wires the file picker and drag-and-drop
+    on `#drop-zone` (both funnel through one `mineFile(file)`), and holds two
     small pure functions — `filterProposals` (AND-composes the
     min-occurrences/min-savings thresholds) and `explainKeystrokesSaved`
     (renders the per-row formula text, recovering a function proposal's
     fixed prefix from its `Definition` string since `Proposal` doesn't
     carry `Prefix`). Both are exported under `module.exports` when
     `require`d from Node so `main.test.js` can unit-test them without a
-    DOM; that export is a no-op in the browser.
+    DOM; that export is a no-op in the browser. `mineFile` tracks a
+    `wasmLoadError` flag (set if `wasm_exec.js` never defined `Go`, or if
+    the `main.wasm` fetch/instantiate rejected) so a mining attempt during
+    or after a failed load surfaces a status message instead of hanging on
+    "Mining..." or throwing an unhandled rejection.
+  - Below 640px the results table becomes a stacked card per row (CSS
+    `display: block` + `td::before { content: attr(data-label) }`), so
+    `buildRow` stamps a `data-label` on every cell to match the header text.
 
 ## Tests
 
@@ -90,6 +108,11 @@ unit-tested under `GOOS=js`.
   `internal/alias` and `internal/pipeline` also include real-execution/
   integration-style tests (sourcing a generated function in an actual
   `bash` shell; running the full pipeline against the `testdata/` fixtures).
+  `internal/miner` (`FuzzTokenize`), `internal/history` (`FuzzParse`), and
+  `internal/pipeline` (`FuzzRun`) each have a native Go fuzz test — `go test
+  ./...` only runs their seed corpus, but `go test -fuzz=FuzzXxx` explores
+  adversarial input directly against the "never panic" contract these
+  parsers have to hold for arbitrary user history files.
 - JS: `make test-js` (`node --test site/main.test.js`) — the DOM-free logic
   in `main.js` only; DOM-driving behavior (drag-drop, copy button, explain
   toggle) is verified by hand in a real browser (headless Chromium via
