@@ -93,7 +93,7 @@ wow moment and must land before anything else in this backlog.
     returns zero candidates and a friendly status message in the UI
     instead of an uncaught JS exception in the console.
 
-- [ ] **3.4 Never propose an alias that bakes in a secret**
+- [x] **3.4 Never propose an alias that bakes in a secret**
   - Commands matching common secret-bearing patterns (e.g. `--password`,
     `--token`, a bare `-p<value>` on tools known to accept inline
     credentials) are excluded from proposals entirely.
