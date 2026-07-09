@@ -16,6 +16,10 @@ jobs:
         with:
           go-version: "1.22"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Format check
         run: make fmt
 
@@ -24,6 +28,9 @@ jobs:
 
       - name: Test
         run: go test ./internal/... -v
+
+      - name: Test site JS
+        run: make test-js
 
       - name: Vet and build wasm entrypoint
         run: |
