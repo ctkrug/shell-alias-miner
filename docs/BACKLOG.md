@@ -29,7 +29,7 @@ wow moment and must land before anything else in this backlog.
   - A varying-argument candidate reports a `PatternKind` (or equivalent
     field) distinguishing it from an exact-match candidate.
 
-- [ ] **1.3 Propose shell functions (not aliases) for commands with a
+- [x] **1.3 Propose shell functions (not aliases) for commands with a
   varying trailing argument**
   - A parameterized candidate's proposed definition is a
     `function name() { ... "$1" ...; }`-shaped snippet, not a plain
