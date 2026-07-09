@@ -51,6 +51,7 @@ if (typeof module !== "undefined") {
 // when this file is `require`d from a non-browser test runner.
 if (typeof document !== "undefined") {
   const statusEl = document.getElementById("status");
+  const dropZone = document.getElementById("drop-zone");
   const fileInput = document.getElementById("history-file");
   const thresholdsSection = document.getElementById("thresholds");
   const minOccurrencesInput = document.getElementById("min-occurrences");
@@ -104,6 +105,29 @@ if (typeof document !== "undefined") {
 
   fileInput.addEventListener("change", () => {
     const file = fileInput.files[0];
+    if (file) {
+      mineFile(file);
+    }
+  });
+
+  // The tagline and label invite dropping a file onto the zone, so make
+  // that literally true, not just a file-picker labeled "drop zone".
+  ["dragenter", "dragover"].forEach((eventName) => {
+    dropZone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropZone.classList.add("drag-over");
+    });
+  });
+
+  ["dragleave", "dragend", "drop"].forEach((eventName) => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.classList.remove("drag-over");
+    });
+  });
+
+  dropZone.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
     if (file) {
       mineFile(file);
     }

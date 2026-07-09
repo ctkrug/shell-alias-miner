@@ -149,9 +149,15 @@ body {
   transition: border-color 200ms var(--ease), background 200ms var(--ease);
 }
 
-#drop-zone:focus-within {
+#drop-zone:focus-within,
+#drop-zone.drag-over {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--surface-2) 85%, var(--accent-dim));
+}
+
+#drop-zone.drag-over {
+  border-style: solid;
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
 #drop-zone label {
