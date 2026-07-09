@@ -15,6 +15,6 @@ import (
 // exercised by ordinary Go tests; cmd/wasm is a thin wrapper around it.
 func Run(historyText string) []alias.Proposal {
 	commands := history.Parse(strings.NewReader(historyText))
-	candidates := miner.CountFrequencies(commands)
+	candidates := miner.Mine(commands)
 	return alias.Propose(candidates)
 }
