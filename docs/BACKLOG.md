@@ -54,7 +54,7 @@ wow moment and must land before anything else in this backlog.
   - Changing the threshold re-filters the already-mined results
     instantly, without re-parsing or re-uploading the file.
 
-- [ ] **2.2 Minimum-keystrokes-saved threshold**
+- [x] **2.2 Minimum-keystrokes-saved threshold**
   - Setting the "min savings" control to N hides every candidate whose
     total keystrokes saved is below N; default is 20.
   - The two thresholds (2.1, 2.2) compose: a candidate must clear both
