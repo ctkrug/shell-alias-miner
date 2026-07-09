@@ -48,7 +48,7 @@ wow moment and must land before anything else in this backlog.
 
 ## Epic 2 — Trust and control over the results
 
-- [ ] **2.1 Minimum-occurrence threshold**
+- [x] **2.1 Minimum-occurrence threshold**
   - Setting the "min occurrences" control to N hides every candidate
     seen fewer than N times in the loaded history; default is 3.
   - Changing the threshold re-filters the already-mined results
