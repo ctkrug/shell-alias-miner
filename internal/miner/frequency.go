@@ -3,11 +3,32 @@ package miner
 
 import "sort"
 
-// Candidate is a command line seen one or more times in history, along
+// PatternKind distinguishes a verbatim-repeat candidate from one whose
+// trailing argument varies across occurrences.
+type PatternKind string
+
+const (
+	// KindExact is a command seen with byte-identical text every time.
+	KindExact PatternKind = "exact"
+	// KindTemplate is a command whose leading tokens repeat but whose
+	// trailing token (an argument) varies between occurrences.
+	KindTemplate PatternKind = "template"
+)
+
+// Candidate is a command pattern seen one or more times in history, along
 // with how many times it was seen.
 type Candidate struct {
+	// Command is a representative full command line: for Kind == KindExact
+	// it's the literal repeated command; for Kind == KindTemplate it's one
+	// example instance of the pattern.
 	Command string
-	Count   int
+	// Prefix is the fixed leading portion of a KindTemplate candidate (all
+	// tokens except the varying trailing argument). Empty for KindExact.
+	Prefix string
+	Count  int
+	// Kind defaults to the zero value "" for callers that only care about
+	// exact-match counting; treat "" the same as KindExact.
+	Kind PatternKind
 }
 
 // CountFrequencies counts how many times each exact command line occurs in
@@ -29,7 +50,7 @@ func CountFrequencies(commands []string) []Candidate {
 
 	candidates := make([]Candidate, 0, len(counts))
 	for cmd, n := range counts {
-		candidates = append(candidates, Candidate{Command: cmd, Count: n})
+		candidates = append(candidates, Candidate{Command: cmd, Count: n, Kind: KindExact})
 	}
 
 	sort.Slice(candidates, func(i, j int) bool {
