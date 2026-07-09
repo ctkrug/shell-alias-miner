@@ -8,12 +8,9 @@ package main
 
 import (
 	"encoding/json"
-	"strings"
 	"syscall/js"
 
-	"github.com/ctkrug/shell-alias-miner/internal/alias"
-	"github.com/ctkrug/shell-alias-miner/internal/history"
-	"github.com/ctkrug/shell-alias-miner/internal/miner"
+	"github.com/ctkrug/shell-alias-miner/internal/pipeline"
 )
 
 func main() {
@@ -29,10 +26,7 @@ func mineHistory(this js.Value, args []js.Value) any {
 		return errorJSON("mineHistory requires the history text as its argument")
 	}
 
-	text := args[0].String()
-	commands := history.Parse(strings.NewReader(text))
-	candidates := miner.CountFrequencies(commands)
-	proposals := alias.Propose(candidates)
+	proposals := pipeline.Run(args[0].String())
 
 	out, err := json.Marshal(proposals)
 	if err != nil {
