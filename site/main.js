@@ -61,17 +61,28 @@ if (typeof document !== "undefined") {
 
   let minedProposals = [];
 
-  const go = new Go();
-  let wasmLoadError = null;
-  let wasmReady = WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
-    .then((result) => {
-      go.run(result.instance);
-      statusEl.textContent = "Ready. Choose a history file to get started.";
-    })
-    .catch((err) => {
-      wasmLoadError = err;
-      statusEl.textContent = "Failed to load the mining engine: " + err.message;
-    });
+  // wasm_exec.js (a separate <script> tag) can fail to load independently of
+  // main.wasm — e.g. a proxy that blocks one asset but not the other. `Go`
+  // would then be undefined and `new Go()` throws synchronously, which used
+  // to abort this whole script before any listener got attached, leaving a
+  // silently dead page. Guard it the same way as a failed main.wasm fetch.
+  let wasmLoadError = typeof Go === "undefined" ? new Error("wasm_exec.js failed to load") : null;
+  let wasmReady;
+  if (wasmLoadError) {
+    statusEl.textContent = "Failed to load the mining engine. Reload the page to try again.";
+    wasmReady = Promise.resolve();
+  } else {
+    const go = new Go();
+    wasmReady = WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
+      .then((result) => {
+        go.run(result.instance);
+        statusEl.textContent = "Ready. Choose a history file to get started.";
+      })
+      .catch((err) => {
+        wasmLoadError = err;
+        statusEl.textContent = "Failed to load the mining engine: " + err.message;
+      });
+  }
 
   // Shared by the file picker and drag-and-drop so both paths get the same
   // status updates and the same guard against mining before (or after a
