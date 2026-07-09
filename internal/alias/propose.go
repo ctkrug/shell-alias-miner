@@ -54,6 +54,12 @@ func Propose(candidates []miner.Candidate) []Proposal {
 	next := map[string]int{}
 
 	for _, c := range candidates {
+		if containsSecret(c.Command) {
+			// Never hand back a pasteable snippet that bakes in a password
+			// or token — skip the candidate entirely rather than propose
+			// something unsafe.
+			continue
+		}
 		if c.Kind == miner.KindTemplate {
 			proposals = append(proposals, proposeFunction(c, next))
 			continue
