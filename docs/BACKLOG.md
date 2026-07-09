@@ -39,7 +39,7 @@ wow moment and must land before anything else in this backlog.
     shell and calling it with an argument reproduces the original
     command with that argument substituted in the correct position.
 
-- [ ] **1.4 Surface alias-vs-function classification in the results
+- [x] **1.4 Surface alias-vs-function classification in the results
   table**
   - The results table has a "Type" column showing `alias` or `function`
     per row.
