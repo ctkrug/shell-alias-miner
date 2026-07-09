@@ -5,7 +5,7 @@ craft work has a fixed target instead of drifting toward generic defaults.
 
 ## 1. Aesthetic direction
 
-**Terminal-mono.** Shell Alias Miner reads someone's shell history, so the page
+**Terminal-mono.** Sift reads someone's shell history, so the page
 itself looks like a terminal window: a dark, glowing command console with a
 monospace data grid, a blinking cursor in the wordmark, and a faux window
 titlebar around the mining workspace. It should feel like a tool built by and
@@ -41,7 +41,7 @@ a file input.
 ## 3. Layout intent
 
 The hero **is** the terminal window: a titlebar (three dots, a path-style
-label `~/shell-alias-miner`) over the drop zone / thresholds / results table,
+label `~/sift`) over the drop zone / thresholds / results table,
 composed as one continuous panel. On 1440×900 it's centered, ~1040px wide,
 comfortably the dominant element on the page with room to breathe around it
 (not full-bleed — a terminal window has edges). On 390×844 the panel goes
@@ -51,7 +51,7 @@ horizontally.
 
 ## 4. Signature detail
 
-The wordmark renders as a shell prompt: `shell-alias-miner█` with a block
+The wordmark renders as a shell prompt: `sift█` with a block
 cursor that blinks (CSS `steps()` animation, paused under reduced-motion).
 The panel titlebar's three dots are real (red/amber/green) window-chrome
 dots, reinforcing the terminal illusion without being a skeuomorphic photo.
