@@ -81,7 +81,7 @@ wow moment and must land before anything else in this backlog.
     timestamps correctly stripped, verified against a fixture file
     checked into `testdata/`.
 
-- [ ] **3.2 Handle large history files without freezing the tab**
+- [x] **3.2 Handle large history files without freezing the tab**
   - A synthetic 150k-line history fixture completes mining in under 3
     seconds in the browser.
   - The browser tab shows no "page unresponsive" warning during mining
