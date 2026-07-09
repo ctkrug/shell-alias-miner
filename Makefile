@@ -1,4 +1,4 @@
-.PHONY: build test vet wasm site clean
+.PHONY: build test vet fmt site wasm clean
 
 # Everything except cmd/wasm builds and tests under the host GOOS/GOARCH.
 build:
@@ -10,6 +10,13 @@ test:
 vet:
 	go vet ./internal/...
 	GOOS=js GOARCH=wasm go vet ./cmd/wasm
+
+# Fails (non-zero exit, prints offending files) if anything is unformatted.
+fmt:
+	@unformatted="$$(gofmt -l .)"; \
+	if [ -n "$$unformatted" ]; then \
+		echo "gofmt needed on:"; echo "$$unformatted"; exit 1; \
+	fi
 
 # cmd/wasm only compiles under GOOS=js GOARCH=wasm (it imports syscall/js),
 # so it's built separately from the rest of the module.
