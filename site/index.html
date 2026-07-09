@@ -4,50 +4,76 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Shell Alias Miner</title>
+  <meta name="description" content="Mine your shell history for the aliases and functions you should have written months ago — entirely in your browser." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%230a0d12%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%2262%22%20height%3D%2262%22%20rx%3D%2213%22%20fill%3D%22none%22%20stroke%3D%22%233ee08c%22%20stroke-opacity%3D%220.35%22%20stroke-width%3D%222%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2241%22%20font-family%3D%22monospace%22%20font-size%3D%2226%22%20font-weight%3D%22700%22%20fill%3D%22%233ee08c%22%20text-anchor%3D%22middle%22%3E%26gt%3B_%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main>
-    <h1>Shell Alias Miner</h1>
-    <p class="tagline">
-      Drop in your shell history. Get back the aliases you should have
-      written months ago.
-    </p>
+  <div class="scene">
+    <header class="site-header">
+      <h1 class="wordmark">shell-alias-miner<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="tagline">
+        Drop in your shell history. Get back the aliases you should have
+        written months ago.
+      </p>
+    </header>
 
-    <section id="drop-zone">
-      <label for="history-file">
-        Choose your <code>.zsh_history</code> or <code>.bash_history</code> file
-      </label>
-      <input type="file" id="history-file" />
-    </section>
+    <div class="terminal">
+      <div class="titlebar">
+        <span class="dots" aria-hidden="true">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-amber"></span>
+          <span class="dot dot-green"></span>
+        </span>
+        <span class="titlebar-label">~/shell-alias-miner</span>
+      </div>
 
-    <p id="status" role="status"></p>
+      <div class="terminal-body">
+        <section id="drop-zone">
+          <label for="history-file">
+            Choose your <code>.zsh_history</code> or <code>.bash_history</code> file
+          </label>
+          <input type="file" id="history-file" />
+        </section>
 
-    <section id="thresholds" hidden>
-      <label>
-        Min occurrences
-        <input type="number" id="min-occurrences" min="0" value="3" />
-      </label>
-      <label>
-        Min keystrokes saved
-        <input type="number" id="min-savings" min="0" value="20" />
-      </label>
-    </section>
+        <p id="status" role="status"></p>
 
-    <table id="results" hidden>
-      <thead>
-        <tr>
-          <th>Alias</th>
-          <th>Type</th>
-          <th>Definition</th>
-          <th>Seen</th>
-          <th>Keystrokes saved</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="results-body"></tbody>
-    </table>
-  </main>
+        <section id="thresholds" hidden>
+          <label>
+            Min occurrences
+            <input type="number" id="min-occurrences" min="0" value="3" inputmode="numeric" />
+          </label>
+          <label>
+            Min keystrokes saved
+            <input type="number" id="min-savings" min="0" value="20" inputmode="numeric" />
+          </label>
+        </section>
+
+        <div class="table-wrap">
+          <table id="results" hidden>
+            <thead>
+              <tr>
+                <th>Alias</th>
+                <th>Type</th>
+                <th>Definition</th>
+                <th>Seen</th>
+                <th>Keystrokes saved</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      Runs entirely in your browser via WebAssembly — nothing is uploaded.
+    </footer>
+  </div>
 
   <script src="wasm_exec.js"></script>
   <script src="main.js"></script>
