@@ -59,6 +59,7 @@ chars typed with the alias) x times seen`.
 
 - Parses `.zsh_history` (with and without the `EXTENDED_HISTORY` timestamp
   format) and plain `.bash_history`.
+- Drag-and-drop the file onto the page, or use the file picker.
 - Frequency + n-gram mining over tokenized command lines, not raw string
   matching — commands that vary only in a trailing argument (a commit
   message, a filename) are recognized as one repeated pattern.
