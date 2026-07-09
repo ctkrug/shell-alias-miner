@@ -61,7 +61,11 @@ unit-tested under `GOOS=js`.
     `Mine` in `template.go` for the covered-set optimization (a flat
     `(command, prefix)` slice instead of a set keyed by full command text —
     matters at 100k+-line scale, see `bench_test.go`).
-- **`internal/alias`** — `Propose([]miner.Candidate) []Proposal`.
+- **`internal/alias`** — `Propose([]miner.Candidate) []Proposal`. Sorts its
+  own output by `KeystrokesSaved` descending before returning — `Mine`'s
+  Count-descending order isn't the same thing (a short, already-terse
+  command and a long one seen equally often don't save the same amount),
+  so re-deriving name assignment order wouldn't be enough on its own.
   - `containsSecret` (`secrets.go`): regex match on common long-form
     credential flags (`--password`, `--token`, `--api-key`, `--secret`) plus
     an allowlist-gated check for `mysql`/`mongo`'s inline `-p<password>`
