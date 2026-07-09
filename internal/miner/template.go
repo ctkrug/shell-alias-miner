@@ -25,10 +25,22 @@ func Mine(commands []string) []Candidate {
 		exactCounts[c]++
 	}
 
+	// prefixOf remembers, per unique command, which group it landed in (if
+	// any), as a flat slice rather than a second map keyed by full command
+	// text — cheap to build here and cheap to re-scan below, avoiding a
+	// large "covered" set keyed by (potentially long) command strings.
+	type prefixOf struct {
+		cmd    string
+		prefix string // "" if cmd has fewer than 2 tokens
+	}
+
 	groups := map[string]*templateGroup{}
+	commandPrefixes := make([]prefixOf, 0, len(exactCounts))
+
 	for cmd := range exactCounts {
 		tokens := tokenize(cmd)
 		if len(tokens) < 2 {
+			commandPrefixes = append(commandPrefixes, prefixOf{cmd: cmd})
 			continue // no trailing argument to vary
 		}
 
@@ -42,13 +54,13 @@ func Mine(commands []string) []Candidate {
 		}
 		g.count += exactCounts[cmd]
 		g.suffixes[suffix] = true
-		g.members = append(g.members, cmd)
 		if g.example == "" || cmd < g.example {
 			g.example = cmd
 		}
+
+		commandPrefixes = append(commandPrefixes, prefixOf{cmd: cmd, prefix: prefix})
 	}
 
-	covered := map[string]bool{}
 	candidates := make([]Candidate, 0, len(exactCounts))
 
 	for prefix, g := range groups {
@@ -61,16 +73,13 @@ func Mine(commands []string) []Candidate {
 			Count:   g.count,
 			Kind:    KindTemplate,
 		})
-		for _, m := range g.members {
-			covered[m] = true
-		}
 	}
 
-	for cmd, n := range exactCounts {
-		if covered[cmd] {
-			continue
+	for _, e := range commandPrefixes {
+		if e.prefix != "" && len(groups[e.prefix].suffixes) >= 2 {
+			continue // covered by a template candidate emitted above
 		}
-		candidates = append(candidates, Candidate{Command: cmd, Count: n, Kind: KindExact})
+		candidates = append(candidates, Candidate{Command: e.cmd, Count: exactCounts[e.cmd], Kind: KindExact})
 	}
 
 	sort.Slice(candidates, func(i, j int) bool {
@@ -88,6 +97,5 @@ func Mine(commands []string) []Candidate {
 type templateGroup struct {
 	count    int
 	suffixes map[string]bool
-	members  []string
 	example  string
 }
