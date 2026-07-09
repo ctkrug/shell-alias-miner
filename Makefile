@@ -1,4 +1,4 @@
-.PHONY: build test vet fmt site wasm clean
+.PHONY: build test test-js vet fmt site wasm clean
 
 # Everything except cmd/wasm builds and tests under the host GOOS/GOARCH.
 build:
@@ -6,6 +6,10 @@ build:
 
 test:
 	go test ./internal/...
+
+# Pure DOM-free logic in site/main.js (thresholds, the explain formula).
+test-js:
+	node --test site/main.test.js
 
 vet:
 	go vet ./internal/...
