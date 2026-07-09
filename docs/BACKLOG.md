@@ -60,7 +60,7 @@ wow moment and must land before anything else in this backlog.
   - The two thresholds (2.1, 2.2) compose: a candidate must clear both
     to appear.
 
-- [ ] **2.3 One-click copy of a proposal**
+- [x] **2.3 One-click copy of a proposal**
   - Clicking "Copy" on a row copies exactly that row's Definition text
     to the clipboard (verified via the Clipboard API's write call
     receiving that row's string).
