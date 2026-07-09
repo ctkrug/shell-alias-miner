@@ -1,0 +1,11 @@
+ls -la
+cd ~/projects
+git status
+git status
+git add -A
+git commit -m "wip"
+docker ps -a
+git status
+npm install
+npm run build
+git status
