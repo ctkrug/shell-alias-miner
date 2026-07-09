@@ -9,20 +9,34 @@ import (
 	"github.com/ctkrug/shell-alias-miner/internal/miner"
 )
 
-// Proposal is a ready-to-paste alias for a repeated command.
+// Proposal is a ready-to-paste alias or function for a repeated command.
 type Proposal struct {
-	// Name is the suggested short alias name.
+	// Name is the suggested short alias/function name.
 	Name string
-	// Command is the original, full command being replaced.
+	// Command is the original, full command being replaced (for a
+	// KindFunction proposal, one representative instance of it).
 	Command string
 	// Definition is the shell snippet to paste into .zshrc/.bashrc.
 	Definition string
 	// Occurrences is how many times Command was seen in history.
 	Occurrences int
 	// KeystrokesSaved is the total character count saved across every
-	// occurrence, assuming the alias is used in place of the full command.
+	// occurrence, assuming the proposal is used in place of the full
+	// command.
 	KeystrokesSaved int
+	// Kind is "alias" for a fixed command or "function" for one with a
+	// varying trailing argument.
+	Kind string
 }
+
+const (
+	// KindAlias marks a Proposal for a fixed command with no argument.
+	KindAlias = "alias"
+	// KindFunction marks a Proposal for a command with a varying trailing
+	// argument, proposed as a shell function rather than a plain alias
+	// (a plain alias can't take an argument).
+	KindFunction = "function"
+)
 
 // Propose builds one Proposal per candidate, using name as the alias name
 // for the single highest-value candidate and a numbered suffix for the
@@ -40,29 +54,68 @@ func Propose(candidates []miner.Candidate) []Proposal {
 	next := map[string]int{}
 
 	for _, c := range candidates {
-		name := uniqueName(nameFor(c.Command), next)
-
-		def := fmt.Sprintf("alias %s=%q", name, c.Command)
-
-		// Savings are per future invocation: typing the short name instead
-		// of the full command, summed over every time it was already used.
-		// The one-time cost of pasting the definition itself doesn't count
-		// against it — it's paid once, the savings compound forever after.
-		saved := (len(c.Command) - len(name)) * c.Count
-		if saved < 0 {
-			saved = 0
+		if c.Kind == miner.KindTemplate {
+			proposals = append(proposals, proposeFunction(c, next))
+			continue
 		}
-
-		proposals = append(proposals, Proposal{
-			Name:            name,
-			Command:         c.Command,
-			Definition:      def,
-			Occurrences:     c.Count,
-			KeystrokesSaved: saved,
-		})
+		proposals = append(proposals, proposeAlias(c, next))
 	}
 
 	return proposals
+}
+
+// proposeAlias builds a fixed-command alias proposal.
+func proposeAlias(c miner.Candidate, next map[string]int) Proposal {
+	name := uniqueName(nameFor(c.Command), next)
+
+	def := fmt.Sprintf("alias %s=%q", name, c.Command)
+
+	// Savings are per future invocation: typing the short name instead
+	// of the full command, summed over every time it was already used.
+	// The one-time cost of pasting the definition itself doesn't count
+	// against it — it's paid once, the savings compound forever after.
+	saved := (len(c.Command) - len(name)) * c.Count
+	if saved < 0 {
+		saved = 0
+	}
+
+	return Proposal{
+		Name:            name,
+		Command:         c.Command,
+		Definition:      def,
+		Occurrences:     c.Count,
+		KeystrokesSaved: saved,
+		Kind:            KindAlias,
+	}
+}
+
+// proposeFunction builds a varying-argument function proposal. A plain
+// alias can't take an argument, so a candidate whose trailing token varies
+// gets a one-parameter shell function instead, with the fixed prefix baked
+// in and "$1" substituted where the varying argument goes.
+func proposeFunction(c miner.Candidate, next map[string]int) Proposal {
+	name := uniqueName(nameFor(c.Prefix), next)
+
+	def := fmt.Sprintf(`function %s() { %s "$1"; }`, name, c.Prefix)
+
+	// Same accounting as the alias case, but relative to Prefix: the
+	// argument itself is typed either way (as part of the original command
+	// or as the function's "$1"), so only the fixed prefix-vs-name delta
+	// is a real saving, and it's the same delta on every invocation
+	// regardless of how long that occurrence's argument was.
+	saved := (len(c.Prefix) - len(name)) * c.Count
+	if saved < 0 {
+		saved = 0
+	}
+
+	return Proposal{
+		Name:            name,
+		Command:         c.Command,
+		Definition:      def,
+		Occurrences:     c.Count,
+		KeystrokesSaved: saved,
+		Kind:            KindFunction,
+	}
 }
 
 // nameFor derives a short alias name from a command's leading tokens,
