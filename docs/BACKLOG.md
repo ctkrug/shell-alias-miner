@@ -88,7 +88,7 @@ wow moment and must land before anything else in this backlog.
     (mining runs without blocking the main thread for longer than the
     browser's hang-detection window).
 
-- [ ] **3.3 Handle malformed or non-text input without crashing**
+- [x] **3.3 Handle malformed or non-text input without crashing**
   - Feeding a file that isn't valid shell history (random binary bytes)
     returns zero candidates and a friendly status message in the UI
     instead of an uncaught JS exception in the console.
