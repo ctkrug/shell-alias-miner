@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Vet
+        run: go vet ./internal/...
+
+      - name: Test
+        run: go test ./internal/... -v
+
+      - name: Vet and build wasm entrypoint
+        run: |
+          GOOS=js GOARCH=wasm go vet ./cmd/wasm
+          GOOS=js GOARCH=wasm go build -o /tmp/main.wasm ./cmd/wasm
