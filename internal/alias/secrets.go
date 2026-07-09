@@ -1,6 +1,7 @@
 package alias
 
 import (
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -27,7 +28,14 @@ func containsSecret(command string) bool {
 	}
 
 	fields := strings.Fields(command)
-	if len(fields) == 0 || !inlineCredentialTools[fields[0]] {
+	if len(fields) == 0 {
+		return false
+	}
+	// The history line may invoke the tool by an absolute/relative path
+	// (PATH resolution order, a versioned wrapper) or in unusual case, so
+	// match on the lowercased base name rather than the raw first field.
+	tool := strings.ToLower(filepath.Base(fields[0]))
+	if !inlineCredentialTools[tool] {
 		return false
 	}
 	for _, f := range fields[1:] {
