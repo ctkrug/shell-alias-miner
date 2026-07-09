@@ -74,7 +74,7 @@ wow moment and must land before anything else in this backlog.
 
 ## Epic 3 — Robustness on real-world history files
 
-- [ ] **3.1 Validate mixed-format parsing end to end in the UI**
+- [x] **3.1 Validate mixed-format parsing end to end in the UI**
   - Dropping a plain `bash_history` file (no `: <ts>:<dur>;` prefixes)
     produces commands with no leftover timestamp artifacts in any row.
   - Dropping a zsh `EXTENDED_HISTORY` file produces commands with
