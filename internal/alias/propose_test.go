@@ -74,3 +74,20 @@ func TestProposeNeverGoesNegative(t *testing.T) {
 		t.Errorf("KeystrokesSaved = %d, want >= 0", got[0].KeystrokesSaved)
 	}
 }
+
+func TestProposeExcludesCredentialBearingCandidates(t *testing.T) {
+	candidates := []miner.Candidate{
+		{Command: "git status --short", Count: 340, Kind: miner.KindExact},
+		{Command: "mysql -uroot -phunter2 mydb", Count: 20, Kind: miner.KindExact},
+		{Command: "curl --token ghp_abc123 https://example.com", Count: 5, Kind: miner.KindExact},
+	}
+
+	got := Propose(candidates)
+
+	if len(got) != 1 {
+		t.Fatalf("got %d proposals, want 1: %#v", len(got), got)
+	}
+	if got[0].Command != "git status --short" {
+		t.Errorf("got[0].Command = %q, want the unrelated command", got[0].Command)
+	}
+}
