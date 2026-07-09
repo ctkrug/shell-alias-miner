@@ -82,8 +82,93 @@
       </div>
     </div>
 
+    <section class="about">
+      <div class="about-block">
+        <h2>What Sift does</h2>
+        <p>
+          Sift reads a copy of your shell history and finds the commands you
+          type over and over. For every repeated command it writes the alias
+          or shell function you would have written yourself, then ranks them
+          by how many keystrokes each one saves across all the times you have
+          already run it. Copy the ones you want into your
+          <code>.zshrc</code> or <code>.bashrc</code> and stop retyping them.
+        </p>
+        <p>
+          It is built for anyone who has spent a few years in the same
+          terminal and built up habits without automating them: a
+          <code>git log</code> incantation with six flags, a
+          <code>docker run</code> with the same mounts and ports, an
+          <code>ffmpeg</code> transcode. You know you should alias those. Sift
+          works out which ones are actually worth it.
+        </p>
+      </div>
+
+      <div class="about-block">
+        <h2>How to use it</h2>
+        <ol>
+          <li>Find your history file: <code>~/.zsh_history</code> or <code>~/.bash_history</code>.</li>
+          <li>Drop it onto the terminal panel above, or use the file picker.</li>
+          <li>Nudge the minimum-occurrences and minimum-savings inputs to cut noise.</li>
+          <li>Click <strong>Copy</strong> on any row and paste the line into your shell config.</li>
+        </ol>
+      </div>
+
+      <div class="about-block">
+        <h2>Questions</h2>
+        <details class="faq">
+          <summary>Is my shell history uploaded anywhere?</summary>
+          <p>
+            No. Sift is a Go program compiled to WebAssembly that runs inside
+            your browser tab. Your file is read locally and never sent over
+            the network. Open your browser's network panel while you use it:
+            there is no request.
+          </p>
+        </details>
+        <details class="faq">
+          <summary>Does it work with both zsh and bash?</summary>
+          <p>
+            Yes. It parses plain <code>.bash_history</code> and zsh history in
+            both its plain and <code>EXTENDED_HISTORY</code> (timestamped)
+            forms, and it stitches back together commands that span multiple
+            lines with a trailing backslash.
+          </p>
+        </details>
+        <details class="faq">
+          <summary>What about a command whose argument changes every time?</summary>
+          <p>
+            That becomes a shell function instead of a plain alias. Sift groups
+            commands that share every token except the last, so fifty
+            <code>git commit -m "..."</code> lines with fifty different messages
+            count as one candidate and get a <code>function</code> with a
+            <code>$1</code> parameter.
+          </p>
+        </details>
+        <details class="faq">
+          <summary>Could it leak a password that was on the command line?</summary>
+          <p>
+            No. Any command that looks like it carries an inline credential (a
+            <code>--password</code>, <code>--token</code>,
+            <code>--api-key</code>, or a <code>mysql -p&lt;value&gt;</code>
+            style flag) is dropped before proposals are built, so a copied
+            snippet never bakes in a secret.
+          </p>
+        </details>
+        <details class="faq">
+          <summary>How is "keystrokes saved" calculated?</summary>
+          <p>
+            For each proposal it is the length of the command minus the length
+            of the short alias name, multiplied by the number of times you ran
+            it. Every row shows the exact numbers behind its total.
+          </p>
+        </details>
+      </div>
+    </section>
+
     <footer class="site-footer">
-      Runs entirely in your browser via WebAssembly — nothing is uploaded.
+      <p>Runs entirely in your browser via WebAssembly. Nothing is uploaded.</p>
+      <p class="cross-promo">
+        <a href="https://apps.charliekrug.com" target="_blank" rel="noopener">More by Charlie Krug → apps.charliekrug.com</a>
+      </p>
     </footer>
   </div>
 
