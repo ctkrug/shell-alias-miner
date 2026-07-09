@@ -43,3 +43,21 @@ func TestTokenizeCollapsesRepeatedWhitespace(t *testing.T) {
 		t.Errorf("tokenize() = %#v, want %#v", got, want)
 	}
 }
+
+// An unterminated quote must not hang or panic — the rest of the line
+// (including any embedded spaces) becomes one trailing token instead.
+func TestTokenizeUnbalancedQuoteNeverPanics(t *testing.T) {
+	got := tokenize(`git commit -m "oops never closed`)
+	want := []string{"git", "commit", "-m", `"oops never closed`}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("tokenize() = %#v, want %#v", got, want)
+	}
+}
+
+func TestTokenizeUnicodeAndEmoji(t *testing.T) {
+	got := tokenize(`git commit -m "🎉 done"`)
+	want := []string{"git", "commit", "-m", `"🎉 done"`}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("tokenize() = %#v, want %#v", got, want)
+	}
+}
