@@ -51,6 +51,20 @@ func TestParseSkipsBlankLines(t *testing.T) {
 	}
 }
 
+// A line that happens to start with ": " but isn't actually a zsh
+// EXTENDED_HISTORY entry (no semicolon at all, or a semicolon but no
+// timestamp-shaped header before it) must pass through unchanged rather
+// than being mistaken for one and mangled.
+func TestParseLineStartingWithColonSpaceButNotExtendedHistory(t *testing.T) {
+	input := ": no semicolon at all here\n: notatimestamp;echo hi\n"
+	got := Parse(strings.NewReader(input))
+	want := []string{": no semicolon at all here", ": notatimestamp;echo hi"}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("Parse() = %#v, want %#v", got, want)
+	}
+}
+
 // A single pasted line far longer than bufio.Scanner's default token size
 // must not silently drop every command after it — a history file with one
 // absurd line (a base64 blob someone once piped through echo) should still
