@@ -135,23 +135,29 @@ if (typeof document !== "undefined") {
     const row = document.createElement("tr");
 
     const alias = document.createElement("td");
+    alias.dataset.label = "Alias";
     alias.textContent = p.Name;
 
     const type = document.createElement("td");
+    type.dataset.label = "Type";
     type.textContent = p.Kind;
 
     const definition = document.createElement("td");
+    definition.dataset.label = "Definition";
     const code = document.createElement("code");
     code.textContent = p.Definition;
     definition.appendChild(code);
 
     const seen = document.createElement("td");
+    seen.dataset.label = "Seen";
     seen.textContent = p.Occurrences;
 
     const saved = document.createElement("td");
+    saved.dataset.label = "Keystrokes saved";
     saved.appendChild(buildSavedExplainer(p));
 
     const actions = document.createElement("td");
+    actions.dataset.label = "Actions";
     actions.appendChild(buildCopyButton(p.Definition));
 
     row.append(alias, type, definition, seen, saved, actions);
