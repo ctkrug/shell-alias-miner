@@ -46,6 +46,14 @@ For every candidate pattern it proposes either:
 Each proposal comes with a keystrokes-saved estimate: `(chars typed per use -
 chars typed with the alias) x times seen`.
 
+## Sample output
+
+| Alias | Definition | Seen | Keystrokes saved |
+|---|---|---|---|
+| `gs` | `alias gs="git status --short --branch"` | 340 | 9,860 |
+| `dcu` | `alias dcu="docker compose up -d"` | 58 | 1,392 |
+| `gl` | `alias gl="git log --oneline --graph --all"` | 21 | 861 |
+
 ## Planned features
 
 - Parse `.zsh_history` (with and without the `EXTENDED_HISTORY` timestamp
