@@ -54,6 +54,9 @@ function renderResults(proposals) {
     const alias = document.createElement("td");
     alias.textContent = p.Name;
 
+    const type = document.createElement("td");
+    type.textContent = p.Kind;
+
     const definition = document.createElement("td");
     const code = document.createElement("code");
     code.textContent = p.Definition;
@@ -65,7 +68,7 @@ function renderResults(proposals) {
     const saved = document.createElement("td");
     saved.textContent = p.KeystrokesSaved;
 
-    row.append(alias, definition, seen, saved);
+    row.append(alias, type, definition, seen, saved);
     resultsBody.appendChild(row);
   }
 
