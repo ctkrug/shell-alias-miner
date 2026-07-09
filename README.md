@@ -68,6 +68,22 @@ chars typed with the alias) x times seen`.
 - No backend, no build server required at runtime — the wasm binary is a
   static asset.
 
+## Building and running locally
+
+```sh
+make test    # run the Go test suite
+make vet     # go vet, including the wasm entrypoint
+make site    # build site/main.wasm and copy in wasm_exec.js
+```
+
+After `make site`, serve `site/` with any static file server (opening
+`index.html` directly via `file://` won't work — `fetch()` requires
+http(s)) and open it in a browser, e.g.:
+
+```sh
+cd site && python3 -m http.server 8080
+```
+
 ## Status
 
 Early scaffold. See [`docs/VISION.md`](docs/VISION.md) for the full design
