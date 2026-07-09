@@ -25,8 +25,11 @@ func Parse(r io.Reader) []string {
 		inCont   bool
 	)
 
-	scanner := bufio.NewScanner(r)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	// bufio.Reader.ReadString has no fixed max-line-length: unlike
+	// bufio.Scanner (which permanently stops at its buffer cap, silently
+	// dropping the rest of the file), it just grows to fit whatever single
+	// line it's given.
+	reader := bufio.NewReaderSize(r, 64*1024)
 
 	flush := func() {
 		cmd := strings.TrimSpace(pending.String())
@@ -36,25 +39,31 @@ func Parse(r io.Reader) []string {
 		pending.Reset()
 	}
 
-	for scanner.Scan() {
-		line := scanner.Text()
+	for {
+		raw, err := reader.ReadString('\n')
+		if raw != "" {
+			line := strings.TrimSuffix(strings.TrimSuffix(raw, "\n"), "\r")
 
-		if !inCont {
-			if cmd, ok := stripExtendedHistoryPrefix(line); ok {
-				line = cmd
+			if !inCont {
+				if cmd, ok := stripExtendedHistoryPrefix(line); ok {
+					line = cmd
+				}
+			}
+
+			if strings.HasSuffix(line, "\\") {
+				pending.WriteString(strings.TrimSuffix(line, "\\"))
+				pending.WriteByte('\n')
+				inCont = true
+			} else {
+				pending.WriteString(line)
+				flush()
+				inCont = false
 			}
 		}
 
-		if strings.HasSuffix(line, "\\") {
-			pending.WriteString(strings.TrimSuffix(line, "\\"))
-			pending.WriteByte('\n')
-			inCont = true
-			continue
+		if err != nil {
+			break
 		}
-
-		pending.WriteString(line)
-		flush()
-		inCont = false
 	}
 
 	// A trailing continuation with no terminating line still counts.
