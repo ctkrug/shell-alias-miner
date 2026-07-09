@@ -45,6 +45,27 @@ func TestProposeKeystrokesSavedScalesWithOccurrences(t *testing.T) {
 	}
 }
 
+func TestProposeManyCollisionsStayUnique(t *testing.T) {
+	// All of these derive the same base name ("eu") from their first two
+	// fields, forcing a long run of collisions in the numbered-suffix
+	// resolver. Also guards against the O(n) probe-per-collision approach
+	// that made Propose quadratic on inputs like this.
+	candidates := make([]miner.Candidate, 2000)
+	for i := range candidates {
+		candidates[i] = miner.Candidate{Command: "echo unique-command", Count: 1}
+	}
+
+	got := Propose(candidates)
+
+	seen := make(map[string]bool, len(got))
+	for _, p := range got {
+		if seen[p.Name] {
+			t.Fatalf("duplicate alias name %q", p.Name)
+		}
+		seen[p.Name] = true
+	}
+}
+
 func TestProposeNeverGoesNegative(t *testing.T) {
 	// A short, already-terse command where the alias definition is longer
 	// than the command itself must not report negative savings.

@@ -32,11 +32,15 @@ type Proposal struct {
 // Propose preserves that order in its output.
 func Propose(candidates []miner.Candidate) []Proposal {
 	proposals := make([]Proposal, 0, len(candidates))
-	used := map[string]bool{}
+	// next[base] is the next numbered suffix to try for that base name, so
+	// resolving a collision is O(1) instead of re-probing from scratch on
+	// every call — that probe-from-2 approach goes quadratic when many
+	// candidates collide on the same base (e.g. a long run of "echo ..."
+	// commands, which all derive the same one- or two-letter base).
+	next := map[string]int{}
 
 	for _, c := range candidates {
-		name := uniqueName(nameFor(c.Command), used)
-		used[name] = true
+		name := uniqueName(nameFor(c.Command), next)
 
 		def := fmt.Sprintf("alias %s=%q", name, c.Command)
 
@@ -87,14 +91,16 @@ func nameFor(command string) string {
 	return strings.ToLower(b.String())
 }
 
-func uniqueName(base string, used map[string]bool) string {
-	if !used[base] {
+// uniqueName returns base the first time it's requested, then base2, base3,
+// ... on each subsequent request for the same base. next tracks, per base,
+// the next suffix to hand out, so repeated collisions resolve in O(1)
+// instead of re-scanning from the start each time.
+func uniqueName(base string, next map[string]int) string {
+	n, seen := next[base]
+	if !seen {
+		next[base] = 2
 		return base
 	}
-	for i := 2; ; i++ {
-		candidate := fmt.Sprintf("%s%d", base, i)
-		if !used[candidate] {
-			return candidate
-		}
-	}
+	next[base] = n + 1
+	return fmt.Sprintf("%s%d", base, n)
 }
