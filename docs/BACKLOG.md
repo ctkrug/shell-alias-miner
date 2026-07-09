@@ -18,7 +18,7 @@ wow moment and must land before anything else in this backlog.
   - The Keystrokes Saved cell shows a number greater than 0 equal to
     `(command length - alias name length) * occurrences`.
 
-- [ ] **1.2 Mine n-gram templates so commands with varying trailing
+- [x] **1.2 Mine n-gram templates so commands with varying trailing
   arguments are recognized as one repeated pattern**
   - History containing `git commit -m "..."` 50 times with 50 distinct
     messages produces a single candidate for the `git commit -m`
