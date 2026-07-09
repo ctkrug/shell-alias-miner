@@ -67,7 +67,7 @@ wow moment and must land before anything else in this backlog.
   - The button shows a brief "Copied" confirmation state after a
     successful copy, then reverts.
 
-- [ ] **2.4 Explain the keystrokes-saved math per row**
+- [x] **2.4 Explain the keystrokes-saved math per row**
   - An info affordance on the Keystrokes Saved column, when hovered or
     tapped, shows the formula and the specific numbers used for that
     row (command length, alias name length, occurrence count).
