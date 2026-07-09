@@ -61,23 +61,31 @@ if (typeof document !== "undefined") {
   let minedProposals = [];
 
   const go = new Go();
+  let wasmLoadError = null;
   let wasmReady = WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
     .then((result) => {
       go.run(result.instance);
       statusEl.textContent = "Ready. Choose a history file to get started.";
     })
     .catch((err) => {
-      statusEl.textContent = "Failed to load the wasm module: " + err.message;
+      wasmLoadError = err;
+      statusEl.textContent = "Failed to load the mining engine: " + err.message;
     });
 
-  fileInput.addEventListener("change", async () => {
-    const file = fileInput.files[0];
-    if (!file) {
-      return;
-    }
-
+  // Shared by the file picker and drag-and-drop so both paths get the same
+  // status updates and the same guard against mining before (or after a
+  // failed) wasm load — awaiting a rejected promise would otherwise surface
+  // as an uncaught rejection with the status text stuck on "Mining...".
+  async function mineFile(file) {
     statusEl.textContent = "Mining " + file.name + "...";
     await wasmReady;
+
+    if (wasmLoadError) {
+      statusEl.textContent = "Can't mine: the mining engine failed to load. Reload the page to try again.";
+      thresholdsSection.hidden = true;
+      resultsTable.hidden = true;
+      return;
+    }
 
     const text = await file.text();
     const raw = window.mineHistory(text);
@@ -92,6 +100,13 @@ if (typeof document !== "undefined") {
 
     minedProposals = parsed;
     applyFilterAndRender();
+  }
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (file) {
+      mineFile(file);
+    }
   });
 
   minOccurrencesInput.addEventListener("input", applyFilterAndRender);
