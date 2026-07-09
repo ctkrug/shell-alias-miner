@@ -6,7 +6,7 @@ wow moment and must land before anything else in this backlog.
 
 ## Epic 1 — The wow moment: real n-gram mining, end to end
 
-- [ ] **1.1 Load a real `.zsh_history` and see the top repeated command
+- [x] **1.1 Load a real `.zsh_history` and see the top repeated command
   with a ready alias and its keystrokes-saved count, in under a second**
   - Given a `.zsh_history` file (10k+ lines) containing one multi-word
     command repeated 340 times with no argument variation, dropping the
