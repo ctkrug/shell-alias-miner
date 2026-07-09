@@ -5,6 +5,7 @@ package alias
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/ctkrug/shell-alias-miner/internal/miner"
 )
@@ -125,7 +126,11 @@ func proposeFunction(c miner.Candidate, next map[string]int) Proposal {
 }
 
 // nameFor derives a short alias name from a command's leading tokens,
-// e.g. "git status --short" -> "gs".
+// e.g. "git status --short" -> "gs". The result is pasted verbatim as a
+// shell alias/function name, so only letters and digits ever make it in —
+// a token with no alphanumeric character at all (a bare "&&", "|", or a
+// quoted flag value's leading '"') is skipped entirely rather than
+// contributing whatever its first byte happens to be.
 func nameFor(command string) string {
 	fields := strings.Fields(command)
 	if len(fields) == 0 {
@@ -133,21 +138,37 @@ func nameFor(command string) string {
 	}
 
 	var b strings.Builder
-	for i, f := range fields {
-		if i >= 3 {
+	picked := 0
+	for _, f := range fields {
+		if picked >= 3 {
 			break
 		}
 		if strings.HasPrefix(f, "-") {
 			continue
 		}
-		r := []rune(f)
-		b.WriteRune(r[0])
+		r := firstAlphanumeric(f)
+		if r == 0 {
+			continue
+		}
+		b.WriteRune(r)
+		picked++
 	}
 
 	if b.Len() == 0 {
 		return "cmd"
 	}
 	return strings.ToLower(b.String())
+}
+
+// firstAlphanumeric returns the first letter or digit in s, or 0 if it has
+// none (e.g. an operator token like "&&" or a lone quote character).
+func firstAlphanumeric(s string) rune {
+	for _, r := range s {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			return r
+		}
+	}
+	return 0
 }
 
 // uniqueName returns base the first time it's requested, then base2, base3,
