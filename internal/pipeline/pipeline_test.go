@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"math/rand"
 	"os"
 	"strings"
 	"testing"
@@ -57,6 +58,29 @@ func TestRunCollapsesVaryingCommitMessagesIntoOneFunction(t *testing.T) {
 	}
 	if !strings.Contains(top.Definition, `"$1"`) {
 		t.Errorf("top proposal Definition = %q, want it to reference \"$1\"", top.Definition)
+	}
+}
+
+// TestRunNeverPanicsOnRandomBinaryInput feeds Run the kind of input a
+// browser's File.text() decode of a non-text file could produce: arbitrary
+// bytes, including invalid UTF-8 sequences. Run must never panic — a
+// malformed file should surface as no candidates worth showing, not an
+// uncaught exception in the wasm entrypoint. Reaching the assertions below
+// already proves Run didn't panic; the assertions then confirm that
+// applying the UI's default thresholds (min 3 occurrences, min 20
+// keystrokes saved — see site/main.js) leaves nothing visible, since
+// random bytes essentially never repeat enough to be worth aliasing.
+func TestRunNeverPanicsOnRandomBinaryInput(t *testing.T) {
+	r := rand.New(rand.NewSource(1))
+	b := make([]byte, 50_000)
+	r.Read(b)
+
+	got := Run(string(b))
+
+	for _, p := range got {
+		if p.Occurrences >= 3 && p.KeystrokesSaved >= 20 {
+			t.Errorf("binary input produced a default-visible proposal: %#v", p)
+		}
 	}
 }
 
