@@ -186,11 +186,13 @@ if (typeof document !== "undefined") {
     button.addEventListener("click", () => {
       const revert = () => {
         button.textContent = "Copy";
+        button.classList.remove("copied");
       };
       navigator.clipboard
         .writeText(definition)
         .then(() => {
           button.textContent = "Copied";
+          button.classList.add("copied");
           setTimeout(revert, 1500);
         })
         .catch(() => {
