@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -56,5 +57,27 @@ func TestRunCollapsesVaryingCommitMessagesIntoOneFunction(t *testing.T) {
 	}
 	if !strings.Contains(top.Definition, `"$1"`) {
 		t.Errorf("top proposal Definition = %q, want it to reference \"$1\"", top.Definition)
+	}
+}
+
+// TestRunFixturesProduceNoTimestampArtifacts drives the same fixtures
+// checked into testdata/ (used at the parser level by
+// internal/history.TestParseFixturesAgree) through the full pipeline the
+// wasm entrypoint uses, and checks that no resulting proposal carries a
+// leftover zsh EXTENDED_HISTORY timestamp prefix.
+func TestRunFixturesProduceNoTimestampArtifacts(t *testing.T) {
+	for _, name := range []string{"bash_history", "zsh_extended_history"} {
+		raw, err := os.ReadFile("../../testdata/" + name)
+		if err != nil {
+			t.Fatalf("read %s: %v", name, err)
+		}
+
+		got := Run(string(raw))
+
+		for _, p := range got {
+			if strings.HasPrefix(p.Command, ": ") || strings.Contains(p.Definition, ": ") {
+				t.Errorf("%s: proposal carries a timestamp artifact: %#v", name, p)
+			}
+		}
 	}
 }
