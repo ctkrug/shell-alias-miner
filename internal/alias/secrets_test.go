@@ -56,3 +56,20 @@ func TestContainsSecretEmptyInput(t *testing.T) {
 		t.Error("containsSecret(\"\") = true, want false")
 	}
 }
+
+func TestContainsSecretDetectsMysqlInvokedByAbsolutePath(t *testing.T) {
+	// People often have /usr/bin/mysql (or a versioned wrapper) ahead of
+	// plain "mysql" in PATH, so the exact history line frequently isn't
+	// bare "mysql". The inline -p<password> convention is exactly as
+	// dangerous to alias regardless of how the binary was invoked.
+	cases := []string{
+		"/usr/bin/mysql -phunter2 mydb",
+		"/usr/local/bin/mysql -phunter2 mydb",
+		"MYSQL -phunter2 mydb",
+	}
+	for _, c := range cases {
+		if !containsSecret(c) {
+			t.Errorf("containsSecret(%q) = false, want true", c)
+		}
+	}
+}
