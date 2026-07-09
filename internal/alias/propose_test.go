@@ -75,6 +75,30 @@ func TestProposeNeverGoesNegative(t *testing.T) {
 	}
 }
 
+// Backlog 1.4: rows must stay sorted by keystrokes saved, not just by raw
+// occurrence count, so the single highest-value proposal is always first
+// even when two candidates tie on Count.
+func TestProposeOrdersByKeystrokesSavedNotJustCount(t *testing.T) {
+	candidates := []miner.Candidate{
+		// Both seen 10 times, but this one's alias barely shortens it...
+		{Command: "a", Count: 10, Kind: miner.KindExact},
+		// ...while this one saves far more per use. Alphabetically "a"
+		// sorts first, so a Count-only sort would put the low-value
+		// proposal ahead of the high-value one.
+		{Command: "zzzzzzzzzzzzzzzzzzzz mmmmmmmmmmmmmmmmmmmm", Count: 10, Kind: miner.KindExact},
+	}
+
+	got := Propose(candidates)
+
+	if len(got) != 2 {
+		t.Fatalf("got %d proposals, want 2", len(got))
+	}
+	if got[0].KeystrokesSaved < got[1].KeystrokesSaved {
+		t.Errorf("got[0].KeystrokesSaved=%d < got[1].KeystrokesSaved=%d, want descending order",
+			got[0].KeystrokesSaved, got[1].KeystrokesSaved)
+	}
+}
+
 func TestProposeExcludesCredentialBearingCandidates(t *testing.T) {
 	candidates := []miner.Candidate{
 		{Command: "git status --short", Count: 340, Kind: miner.KindExact},
