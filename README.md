@@ -48,23 +48,29 @@ chars typed with the alias) x times seen`.
 
 ## Sample output
 
-| Alias | Definition | Seen | Keystrokes saved |
-|---|---|---|---|
-| `gs` | `alias gs="git status --short --branch"` | 340 | 9,860 |
-| `dcu` | `alias dcu="docker compose up -d"` | 58 | 1,392 |
-| `gl` | `alias gl="git log --oneline --graph --all"` | 21 | 861 |
+| Alias | Type | Definition | Seen | Keystrokes saved |
+|---|---|---|---|---|
+| `gs` | alias | `alias gs="git status --short --branch"` | 340 | 9,860 |
+| `gc` | function | `function gc() { git commit -m "$1"; }` | 128 | 1,664 |
+| `dcu` | alias | `alias dcu="docker compose up -d"` | 58 | 1,392 |
+| `gl` | alias | `alias gl="git log --oneline --graph --all"` | 21 | 861 |
 
-## Planned features
+## Features
 
-- Parse `.zsh_history` (with and without the `EXTENDED_HISTORY` timestamp
+- Parses `.zsh_history` (with and without the `EXTENDED_HISTORY` timestamp
   format) and plain `.bash_history`.
 - Frequency + n-gram mining over tokenized command lines, not raw string
-  matching.
-- Rank candidates by total keystrokes saved, not just raw frequency.
-- Propose `alias` for fixed commands and `function` for commands with
-  varying arguments.
-- Adjustable minimum-occurrence and minimum-savings thresholds.
-- One-click copy of the generated alias/function block.
+  matching — commands that vary only in a trailing argument (a commit
+  message, a filename) are recognized as one repeated pattern.
+- Ranks candidates by total keystrokes saved, not just raw frequency.
+- Proposes `alias` for fixed commands and `function` for commands with
+  varying arguments; a "Type" column shows which is which.
+- Adjustable minimum-occurrence and minimum-savings thresholds, applied
+  instantly without re-mining.
+- One-click copy of the generated alias/function block, with an info
+  affordance that explains the keystrokes-saved math per row.
+- Never proposes an alias/function that would bake in a password, token, or
+  other inline credential.
 - Everything runs client-side via WebAssembly — no server, no upload, no
   network request.
 
@@ -80,6 +86,7 @@ chars typed with the alias) x times seen`.
 
 ```sh
 make test    # run the Go test suite
+make test-js # run site/main.js's unit tests (needs Node)
 make vet     # go vet, including the wasm entrypoint
 make site    # build site/main.wasm and copy in wasm_exec.js
 ```
@@ -94,8 +101,12 @@ cd site && python3 -m http.server 8080
 
 ## Status
 
-Early scaffold. See [`docs/VISION.md`](docs/VISION.md) for the full design
-and [`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+Core feature set complete: history parsing (both formats), exact-match and
+n-gram template mining, alias/function proposals with a secret-bearing-
+command filter, adjustable thresholds, and one-click copy. See
+[`docs/VISION.md`](docs/VISION.md) for the full design,
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the pieces fit
+together, and [`docs/BACKLOG.md`](docs/BACKLOG.md) for what's left.
 
 ## License
 
