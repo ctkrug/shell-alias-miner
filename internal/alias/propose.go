@@ -4,6 +4,7 @@ package alias
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -43,8 +44,11 @@ const (
 // for the single highest-value candidate and a numbered suffix for the
 // rest (cmd2, cmd3, ...) to keep names unique and short.
 //
-// candidates should already be sorted by relevance (see miner.CountFrequencies);
-// Propose preserves that order in its output.
+// Names are assigned in candidates' input order (see miner.CountFrequencies
+// for that ordering), but the returned slice is re-sorted by
+// KeystrokesSaved descending — occurrence count alone doesn't determine
+// value, since a short command that's already terse saves far less per
+// alias than a long one seen the same number of times.
 func Propose(candidates []miner.Candidate) []Proposal {
 	proposals := make([]Proposal, 0, len(candidates))
 	// next[base] is the next numbered suffix to try for that base name, so
@@ -67,6 +71,13 @@ func Propose(candidates []miner.Candidate) []Proposal {
 		}
 		proposals = append(proposals, proposeAlias(c, next))
 	}
+
+	sort.SliceStable(proposals, func(i, j int) bool {
+		if proposals[i].KeystrokesSaved != proposals[j].KeystrokesSaved {
+			return proposals[i].KeystrokesSaved > proposals[j].KeystrokesSaved
+		}
+		return proposals[i].Name < proposals[j].Name
+	})
 
 	return proposals
 }
