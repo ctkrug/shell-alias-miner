@@ -55,6 +55,53 @@ body {
   padding: var(--space-12) var(--space-4) var(--space-8);
 }
 
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-12);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.brand::before {
+  content: "> ";
+  color: var(--accent);
+}
+
+.gh-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  transition: color 150ms var(--ease), border-color 150ms var(--ease), background 150ms var(--ease);
+}
+
+.gh-link:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: var(--accent-dim);
+}
+
+.gh-link:focus-visible {
+  outline: none;
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
 .site-header {
   text-align: center;
   margin-bottom: var(--space-8);
